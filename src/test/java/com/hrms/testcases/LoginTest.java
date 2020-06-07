@@ -2,6 +2,10 @@ package com.hrms.testcases;
 
 import org.testng.annotations.Test;
 import org.testng.AssertJUnit;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -12,31 +16,49 @@ import com.hrms.utils.ConfigsReader;
 public class LoginTest extends PageInitializer{
 	
 	
-	@Test
+	@Test(groups="smoke")
 	public void validAdminLogin() {
-		
-		login.login(ConfigsReader.getProperty("username"), ConfigsReader.getProperty("password"));
-		
-		//DashBoardPageElements db=new DashBoardPageElements();
-		String expectedUser="Welcome Admin";
-		String actualUser=dashboard.welcome.getText();
-		AssertJUnit.assertEquals(actualUser, expectedUser, "Admin is NOT logged in");
-		AssertJUnit.assertTrue(actualUser.contains(ConfigsReader.getProperty("username")));
+		// LoginPageElements login = new LoginPageElements();
+		sendText(login.username, ConfigsReader.getProperty("username"));
+		sendText(login.password, ConfigsReader.getProperty("password"));
+		click(login.loginBtn);
+
+		// DashboardPageElements dashboard = new DashboardPageElements();
+		String expectedUser = "Welcome Admin";
+		String actualUser = dashboard.welcome.getText();
+		Assert.assertEquals(actualUser, expectedUser, "Admin is NOT Logged in");
+		Assert.assertTrue(actualUser.contains(ConfigsReader.getProperty("username")));
+	}
+
+	@Test
+	public void invalidPasswordLogin() {
+		// LoginPageElements login = new LoginPageElements();
+		sendText(login.username, ConfigsReader.getProperty("username"));
+		sendText(login.password, "uiuguig");
+		click(login.loginBtn);
+
+		String expected = "Invalid credential";
+		Assert.assertEquals(login.errorMsg.getText(), expected, "Error message text is not matched");
+	}
+
+	@Test
+	public void emptyUsernameLogin() {
+		// LoginPageElements login = new LoginPageElements();
+		sendText(login.password, ConfigsReader.getProperty("password"));
+		click(login.loginBtn);
+
+		String expected = "Username cannot be empty";
+
+		Assert.assertEquals(login.errorMsg.getText(), expected, "Error message text is not matched");
 	}
 	
-	public void invalidAdminLogin() {
-		sendText(login.username, ConfigsReader.getProperty("marga"));
-		sendText(login.password, ConfigsReader.getProperty("mmmm"));
-		String expectedText="Invalid credentials";
-		String actualText=login.errorMsg.getText();
-		AssertJUnit.assertEquals(actualText, expectedText, "Error message is not correct");
-	}
-	
-	@Test (groups="regression")
-	public void emptyUsername () {
-		login.login("","sdfsdffdsf");
-		String expectedText="Username cannot be empty";
-		String actualText=login.errorMsg.getText();
-		AssertJUnit.assertEquals(actualText,expectedText,"Error message is not correct");
+	@Test 
+	public void timeStamp() {
+		Date d=new Date();
+		System.out.println(d.getTime());
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+		System.out.println(sdf.format(d.getTime()));
+		
+		
 	}
 }
